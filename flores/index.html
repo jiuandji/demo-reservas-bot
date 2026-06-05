@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Floristería · Asistente WhatsApp</title>
+<style>
+  :root{--wa-bg:#0b141a;--wa-header:#202c33;--wa-green:#005c4b;--wa-in:#202c33;
+    --wa-text:#e9edef;--wa-sub:#8696a0;--wa-accent:#00a884}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .phone{width:100%;max-width:430px;height:100vh;max-height:920px;background:var(--wa-bg);
+    display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.6)}
+  .demo-tag{position:absolute;top:8px;right:10px;z-index:5;background:#f0b90b;color:#000;
+    font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.5px}
+  .header{background:var(--wa-header);display:flex;align-items:center;gap:10px;padding:10px 12px;
+    padding-top:calc(10px + env(safe-area-inset-top));flex-shrink:0}
+  .back{color:var(--wa-text);font-size:22px;opacity:.8}
+  .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#e87aa8,#b84d80);
+    display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .h-info{flex:1;min-width:0}
+  .h-name{color:var(--wa-text);font-size:16px;font-weight:600;line-height:1.2}
+  .h-status{color:var(--wa-accent);font-size:12px}
+  .langs{display:flex;gap:4px}
+  .lang{font-size:11px;color:var(--wa-sub);border:1px solid #2a3942;border-radius:10px;padding:3px 7px;cursor:pointer}
+  .lang.active{background:var(--wa-accent);color:#04140f;border-color:var(--wa-accent);font-weight:700}
+  .chat{flex:1;overflow-y:auto;padding:14px 10px 6px;display:flex;flex-direction:column;gap:6px;
+    background-image:linear-gradient(rgba(11,20,26,.94),rgba(11,20,26,.94)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.03'%3E%3Cpath d='M10 30h40M30 10v40'/%3E%3Ccircle cx='30' cy='30' r='8'/%3E%3C/g%3E%3C/svg%3E")}
+  .row{display:flex;max-width:84%}
+  .row.in{align-self:flex-start}.row.out{align-self:flex-end}
+  .bubble{padding:7px 10px 8px;border-radius:8px;color:var(--wa-text);font-size:14.5px;line-height:1.4;
+    position:relative;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 1px 1px rgba(0,0,0,.2)}
+  .in .bubble{background:var(--wa-in);border-top-left-radius:2px}
+  .out .bubble{background:var(--wa-green);border-top-right-radius:2px}
+  .time{font-size:10px;color:var(--wa-sub);float:right;margin:6px 0 -3px 10px;position:relative;top:3px}
+  .out .time{color:#a7c4bb}
+  .typing .bubble{display:flex;gap:4px;align-items:center;padding:12px 14px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--wa-sub);animation:b 1.2s infinite}
+  .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+  @keyframes b{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+  .quick{display:flex;flex-wrap:wrap;gap:8px;padding:8px 10px 4px;justify-content:flex-end}
+  .qbtn{background:transparent;border:1px solid var(--wa-accent);color:var(--wa-accent);
+    padding:8px 14px;border-radius:18px;font-size:13.5px;cursor:pointer;transition:.15s}
+  .qbtn:active{background:var(--wa-accent);color:#04140f}
+  .composer{background:var(--wa-header);display:flex;align-items:center;gap:8px;padding:8px 10px;
+    padding-bottom:calc(8px + env(safe-area-inset-bottom));flex-shrink:0}
+  .composer input{flex:1;background:var(--wa-in);border:none;outline:none;color:var(--wa-text);
+    padding:11px 14px;border-radius:22px;font-size:14.5px}
+  .send{width:44px;height:44px;border-radius:50%;background:var(--wa-accent);border:none;color:#04140f;
+    font-size:20px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .restart{position:absolute;bottom:74px;left:50%;transform:translateX(-50%);z-index:5;
+    background:rgba(32,44,51,.92);color:var(--wa-sub);border:1px solid #2a3942;font-size:11px;
+    padding:5px 12px;border-radius:14px;cursor:pointer;display:none}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="demo-tag">DEMO</div>
+  <div class="header">
+    <a href="../menu.html" class="back" style="text-decoration:none">‹</a>
+    <div class="avatar">💐</div>
+    <div class="h-info">
+      <div class="h-name">Floristería Bloom</div>
+      <div class="h-status" id="status">en línea</div>
+    </div>
+    <div class="langs" id="langs"></div>
+  </div>
+  <div class="chat" id="chat"></div>
+  <button class="restart" id="restart" onclick="restart()">↺</button>
+  <div class="composer">
+    <input id="input" autocomplete="off">
+    <button class="send" onclick="sendInput()">➤</button>
+  </div>
+</div>
+
+<script>
+const BIZ="Floristería Bloom";
+// букет: [название, цена €]
+const BOUQUETS=[["Ramo de rosas",35],["Ramo mixto",28],["Flores de temporada",25],["Premium (grande)",55]];
+const ENVIO=6; // доставка
+
+const T={
+ es:{name:"Español",online:"en línea",typing:"escribiendo…",ph:"Escribe un mensaje",
+  greet:`¡Hola! 👋 Soy el asistente de <b>${BIZ}</b>. Flores para cada ocasión, 24/7. ¿En qué te ayudo?`,
+  m:["💐 Pedir un ramo","🌹 Ver catálogo","🎁 Ocasiones","🕐 Horario","📍 Entrega"],
+  askType:"¡Genial! ¿Qué ramo quieres?",
+  askWhen:"¿Para cuándo lo necesitas?",when:["Hoy","Mañana","Otro día"],
+  askEnv:"¿Recoges o lo enviamos?",envs:["Recoger en tienda","Entrega a domicilio (+6€)"],
+  askN:"¡Casi listo! ✍️ ¿A nombre de quién?",check:"🔎 Preparando tu pedido...",
+  conf:r=>`✅ <b>¡Pedido confirmado!</b>\n\n👤 ${r.nombre}\n💐 ${r.item}\n📅 ${r.when}\n🚚 ${r.env}\n💶 Total: ${r.total}€\n\n¡Gracias por confiar en ${BIZ}! 🌸`,
+  upsell:"🎁 ¿Quieres que te avise para su próximo aniversario/cumpleaños y te prepare el ramo a tiempo?",
+  upYes:"Sí, recuérdamelo",upNo:"No, gracias",
+  upOk:"¡Hecho! Te avisaré con antelación para que nunca llegues tarde. 💛",
+  catalogo:`🌹 Catálogo:\n• Ramo de rosas — 35€\n• Ramo mixto — 28€\n• Flores de temporada — 25€\n• Premium (grande) — 55€\nEnvío a domicilio +6€. ¿Pedimos uno?`,
+  ocas:`🎁 Ocasiones:\n• Aniversario · Cumpleaños\n• San Valentín · Día de la Madre\n• Condolencias · Eventos\nTe preparamos el ramo ideal. ¿Pedimos?`,
+  yesR:"💐 Sí, pedir",no:"No, gracias",
+  horario:`🕐 Horario:\nLun–Sáb 9:00–20:00 · Dom 10:00–14:00\nEnvíos el mismo día si pides antes de las 17:00.\n\n¿Pedimos un ramo?`,
+  ubic:`📍 Platja d'Aro, Costa Brava.\nEnvíos a domicilio en toda la zona 🚚\n\n¿Pedimos?`,
+  fin:"¡Gracias por escribir! Aquí estoy 24/7. 😊",fb:"Te leo 🙂 Puedo ayudarte con:"},
+ ca:{name:"Català",online:"en línia",typing:"escrivint…",ph:"Escriu un missatge",
+  greet:`Hola! 👋 Sóc l'assistent de <b>${BIZ}</b>. Flors per a cada ocasió, 24/7. En què t'ajudo?`,
+  m:["💐 Demanar un ram","🌹 Veure catàleg","🎁 Ocasions","🕐 Horari","📍 Entrega"],
+  askType:"Genial! Quin ram vols?",
+  askWhen:"Per a quan el necessites?",when:["Avui","Demà","Un altre dia"],
+  askEnv:"El reculls o l'enviem?",envs:["Recollir a la botiga","Entrega a domicili (+6€)"],
+  askN:"Gairebé llest! ✍️ A nom de qui?",check:"🔎 Preparant la teva comanda...",
+  conf:r=>`✅ <b>Comanda confirmada!</b>\n\n👤 ${r.nombre}\n💐 ${r.item}\n📅 ${r.when}\n🚚 ${r.env}\n💶 Total: ${r.total}€\n\nGràcies per confiar en ${BIZ}! 🌸`,
+  upsell:"🎁 Vols que t'avisi per al seu pròxim aniversari i et prepari el ram a temps?",
+  upYes:"Sí, recorda-m'ho",upNo:"No, gràcies",
+  upOk:"Fet! T'avisaré amb antelació perquè mai facis tard. 💛",
+  catalogo:`🌹 Catàleg:\n• Ram de roses — 35€\n• Ram mixt — 28€\n• Flors de temporada — 25€\n• Premium (gran) — 55€\nEnviament a domicili +6€. En demanem un?`,
+  ocas:`🎁 Ocasions:\n• Aniversari · Aniversari natalici\n• Sant Valentí · Dia de la Mare\n• Condolences · Esdeveniments\nEt preparem el ram ideal. Demanem?`,
+  yesR:"💐 Sí, demanar",no:"No, gràcies",
+  horario:`🕐 Horari:\nDl–Ds 9:00–20:00 · Dg 10:00–14:00\nEnviaments el mateix dia si demanes abans de les 17:00.\n\nDemanem un ram?`,
+  ubic:`📍 Platja d'Aro, Costa Brava.\nEnviaments a domicili a tota la zona 🚚\n\nDemanem?`,
+  fin:"Gràcies per escriure! Sóc aquí 24/7. 😊",fb:"Et llegeixo 🙂 Et puc ajudar amb:"},
+ en:{name:"English",online:"online",typing:"typing…",ph:"Type a message",
+  greet:`Hi! 👋 I'm the assistant at <b>${BIZ}</b>. Flowers for every occasion, 24/7. How can I help?`,
+  m:["💐 Order a bouquet","🌹 Catalogue","🎁 Occasions","🕐 Hours","📍 Delivery"],
+  askType:"Great! Which bouquet would you like?",
+  askWhen:"When do you need it?",when:["Today","Tomorrow","Another day"],
+  askEnv:"Pickup or delivery?",envs:["Pick up in store","Home delivery (+6€)"],
+  askN:"Almost done! ✍️ Under what name?",check:"🔎 Preparing your order...",
+  conf:r=>`✅ <b>Order confirmed!</b>\n\n👤 ${r.nombre}\n💐 ${r.item}\n📅 ${r.when}\n🚚 ${r.env}\n💶 Total: ${r.total}€\n\nThank you for choosing ${BIZ}! 🌸`,
+  upsell:"🎁 Want me to remind you for their next anniversary/birthday and prep the bouquet in time?",
+  upYes:"Yes, remind me",upNo:"No, thanks",
+  upOk:"Done! I'll remind you in advance so you're never late. 💛",
+  catalogo:`🌹 Catalogue:\n• Rose bouquet — 35€\n• Mixed bouquet — 28€\n• Seasonal flowers — 25€\n• Premium (large) — 55€\nHome delivery +6€. Shall we order one?`,
+  ocas:`🎁 Occasions:\n• Anniversary · Birthday\n• Valentine's · Mother's Day\n• Condolences · Events\nWe'll prepare the perfect bouquet. Order?`,
+  yesR:"💐 Yes, order",no:"No, thanks",
+  horario:`🕐 Hours:\nMon–Sat 9:00–20:00 · Sun 10:00–14:00\nSame-day delivery if ordered before 17:00.\n\nShall we order a bouquet?`,
+  ubic:`📍 Platja d'Aro, Costa Brava.\nHome delivery across the area 🚚\n\nOrder?`,
+  fin:"Thanks for writing! I'm here 24/7. 😊",fb:"I'm listening 🙂 I can help with:"},
+ ru:{name:"Русский",online:"в сети",typing:"печатает…",ph:"Сообщение",
+  greet:`Привет! 👋 Я ассистент <b>${BIZ}</b>. Цветы на любой повод, 24/7. Чем помочь?`,
+  m:["💐 Заказать букет","🌹 Каталог","🎁 Поводы","🕐 Часы работы","📍 Доставка"],
+  askType:"Отлично! Какой букет хотите?",
+  askWhen:"На когда нужен?",when:["Сегодня","Завтра","Другой день"],
+  askEnv:"Заберёте или доставить?",envs:["Забрать в магазине","Доставка на дом (+6€)"],
+  askN:"Почти готово! ✍️ На чьё имя?",check:"🔎 Готовлю ваш заказ...",
+  conf:r=>`✅ <b>Заказ принят!</b>\n\n👤 ${r.nombre}\n💐 ${r.item}\n📅 ${r.when}\n🚚 ${r.env}\n💶 Итого: ${r.total}€\n\nСпасибо, что выбрали ${BIZ}! 🌸`,
+  upsell:"🎁 Хотите, напомню о следующей годовщине/дне рождения и подготовлю букет вовремя?",
+  upYes:"Да, напомни",upNo:"Нет, спасибо",
+  upOk:"Готово! Напомню заранее — никогда не опоздаете. 💛",
+  catalogo:`🌹 Каталог:\n• Букет роз — 35€\n• Сборный букет — 28€\n• Сезонные цветы — 25€\n• Премиум (большой) — 55€\nДоставка на дом +6€. Закажем?`,
+  ocas:`🎁 Поводы:\n• Годовщина · День рождения\n• 14 февраля · День матери\n• Соболезнования · События\nПодберём идеальный букет. Закажем?`,
+  yesR:"💐 Да, заказать",no:"Нет, спасибо",
+  horario:`🕐 Часы:\nПн–Сб 9:00–20:00 · Вс 10:00–14:00\nДоставка в тот же день, если заказ до 17:00.\n\nЗакажем букет?`,
+  ubic:`📍 Platja d'Aro, Коста-Брава.\nДоставка на дом по всему району 🚚\n\nЗакажем?`,
+  fin:"Спасибо за сообщение! Я тут 24/7. 😊",fb:"Слушаю 🙂 Могу помочь с:"}
+};
+
+const chat=document.getElementById('chat'),input=document.getElementById('input'),
+  statusEl=document.getElementById('status'),restartBtn=document.getElementById('restart'),
+  langsEl=document.getElementById('langs');
+let L='es',state='menu',res={};
+
+function tr(){return T[L];}
+function now(){const d=new Date();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function scroll(){chat.scrollTop=chat.scrollHeight;}
+function addOut(t){const r=document.createElement('div');r.className='row out';
+  r.innerHTML=`<div class="bubble">${t}<span class="time">${now()} ✓✓</span></div>`;chat.appendChild(r);scroll();}
+function typing(){statusEl.textContent=tr().typing;const r=document.createElement('div');r.className='row in typing';r.id='typing';
+  r.innerHTML=`<div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;chat.appendChild(r);scroll();}
+function addIn(t,cb){typing();setTimeout(()=>{const x=document.getElementById('typing');if(x)x.remove();
+  statusEl.textContent=tr().online;
+  const r=document.createElement('div');r.className='row in';
+  r.innerHTML=`<div class="bubble">${t}<span class="time">${now()}</span></div>`;chat.appendChild(r);scroll();
+  if(cb)cb();},650+Math.min(t.length*11,1300));}
+function quick(opts){const q=document.createElement('div');q.className='quick';q.id='quick';
+  opts.forEach(o=>{const b=document.createElement('button');b.className='qbtn';b.textContent=o.label;
+    b.onclick=()=>{clearQuick();addOut(o.label);handle(o.value,o.label);};q.appendChild(b);});
+  chat.appendChild(q);scroll();}
+function clearQuick(){const q=document.getElementById('quick');if(q)q.remove();}
+function menuBtns(){const t=tr();return [
+  {label:t.m[0],value:'pedir'},{label:t.m[1],value:'catalogo'},{label:t.m[2],value:'ocas'},
+  {label:t.m[3],value:'horario'},{label:t.m[4],value:'ubicacion'}];}
+
+function start(){const t=tr();chat.innerHTML='';state='menu';res={};restartBtn.style.display='none';
+  input.placeholder=t.ph;statusEl.textContent=t.online;
+  addIn(t.greet,()=>quick(menuBtns()));}
+
+function handle(v,label){const t=tr();
+  if(v==='pedir'){state='p_type';addIn(t.askType,()=>quick(BOUQUETS.map((c,i)=>({label:c[0]+" · "+c[1]+"€",value:'bq'+i}))));}
+  else if(v.startsWith('bq')){const i=+v.slice(2);res.item=BOUQUETS[i][0];res.price=BOUQUETS[i][1];state='p_when';
+    addIn(t.askWhen,()=>quick(t.when.map((d,i)=>({label:d,value:'wh'+i}))));}
+  else if(v.startsWith('wh')){res.when=t.when[+v.slice(2)];state='p_env';
+    addIn(t.askEnv,()=>quick(t.envs.map((d,i)=>({label:d,value:'en'+i}))));}
+  else if(v.startsWith('en')){const i=+v.slice(2);res.env=t.envs[i];res.envFee=(i===1?ENVIO:0);state='p_nombre';addIn(t.askN);}
+  else if(v==='catalogo'){addIn(t.catalogo,()=>quick([{label:t.yesR,value:'pedir'},{label:t.no,value:'fin'}]));}
+  else if(v==='ocas'){addIn(t.ocas,()=>quick([{label:t.yesR,value:'pedir'},{label:t.no,value:'fin'}]));}
+  else if(v==='horario'){addIn(t.horario,()=>quick([{label:t.yesR,value:'pedir'},{label:t.no,value:'fin'}]));}
+  else if(v==='ubicacion'){addIn(t.ubic,()=>quick([{label:t.yesR,value:'pedir'},{label:t.no,value:'fin'}]));}
+  else if(v==='up_yes'){addIn(t.upOk,()=>{restartBtn.style.display='block';});}
+  else if(v==='up_no'||v==='fin'){addIn(t.fin,()=>{restartBtn.style.display='block';});}
+}
+function confirmPedido(){const t=tr();res.total=res.price+res.envFee;
+  addIn(t.check,()=>addIn(t.conf(res),()=>{
+    addIn(t.upsell,()=>quick([{label:t.upYes,value:'up_yes'},{label:t.upNo,value:'up_no'}]));
+  }));}
+
+function sendInput(){const t=tr();const v=input.value.trim();if(!v)return;input.value='';clearQuick();addOut(v);
+  if(state==='p_nombre'){res.nombre=v;state='done';return confirmPedido();}
+  const lo=v.toLowerCase();
+  if(/ramo|ram |bouquet|букет|заказ|pedir|flor|цвет/.test(lo))return handle('pedir');
+  if(/catalog|каталог|precio|preu|price|цен/.test(lo))return handle('catalogo');
+  if(/ocas|повод|aniversar|cumple|regalo|подар/.test(lo))return handle('ocas');
+  if(/horar|hour|часы|работ/.test(lo))return handle('horario');
+  if(/entrega|deliver|llegar|envio|envío|достав|адрес/.test(lo))return handle('ubicacion');
+  addIn(t.fb,()=>quick(menuBtns()));}
+input.addEventListener('keydown',e=>{if(e.key==='Enter')sendInput();});
+
+function setLang(l){L=l;[...langsEl.children].forEach(c=>c.classList.toggle('active',c.dataset.l===l));
+  document.documentElement.lang=l;start();}
+Object.keys(T).forEach(l=>{const b=document.createElement('span');b.className='lang'+(l==='es'?' active':'');
+  b.dataset.l=l;b.textContent=l.toUpperCase();b.onclick=()=>setLang(l);langsEl.appendChild(b);});
+
+function restart(){location.hash='';start();}
+
+function autoplay(){const steps=[
+  ()=>{clearQuick();addOut(tr().m[0]);handle('pedir');},
+  ()=>{clearQuick();addOut(BOUQUETS[0][0]);handle('bq0',BOUQUETS[0][0]);},
+  ()=>{clearQuick();addOut(tr().when[1]);handle('wh1',tr().when[1]);},
+  ()=>{clearQuick();addOut(tr().envs[1]);handle('en1',tr().envs[1]);},
+  ()=>{addOut('Alex');res.nombre='Alex';state='done';confirmPedido();}];
+  let i=0;const t=setInterval(()=>{if(i>=steps.length){clearInterval(t);return;}steps[i++]();},2500);}
+start();
+if(location.hash==='#play')setTimeout(autoplay,1500);
+</script>
+</body>
+</html>
