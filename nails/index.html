@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Demo · Asistente IA WhatsApp · Estudio de Uñas</title>
+<style>
+  :root{--wa-bg:#0b141a;--wa-header:#241019;--wa-green:#005c4b;--wa-in:#1f2c34;--wa-text:#e9edef;--wa-sub:#ffacc9;--wa-accent:#ff4f8b}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#0a0a0a;display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .phone{width:100%;max-width:430px;height:100vh;max-height:920px;background:var(--wa-bg);display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.6)}
+  .demo-tag{position:absolute;top:8px;right:10px;z-index:5;background:var(--wa-accent);color:#2a0010;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.5px}
+  .header{background:var(--wa-header);display:flex;align-items:center;gap:10px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));flex-shrink:0}
+  .back{color:var(--wa-text);font-size:22px;opacity:.8}
+  .avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#ff7eb0,#ff4f8b);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:#2a0010;font-weight:800}
+  .h-info{flex:1;min-width:0}
+  .h-name{color:var(--wa-text);font-size:16px;font-weight:600;line-height:1.2}
+  .h-status{color:var(--wa-accent);font-size:12px}
+  .langs{display:flex;gap:4px}
+  .lang{font-size:11px;color:var(--wa-sub);border:1px solid #3a2530;border-radius:10px;padding:3px 7px;cursor:pointer}
+  .lang.active{background:var(--wa-accent);color:#2a0010;border-color:var(--wa-accent);font-weight:700}
+  .chat{flex:1;overflow-y:auto;padding:14px 10px 6px;display:flex;flex-direction:column;gap:6px;background-image:linear-gradient(rgba(11,20,26,.94),rgba(11,20,26,.94)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.03'%3E%3Cpath d='M10 30h40M30 10v40'/%3E%3Ccircle cx='30' cy='30' r='8'/%3E%3C/g%3E%3C/svg%3E")}
+  .row{display:flex;max-width:84%}
+  .row.in{align-self:flex-start}.row.out{align-self:flex-end}
+  .bubble{padding:7px 10px 8px;border-radius:8px;color:var(--wa-text);font-size:14.5px;line-height:1.4;position:relative;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 1px 1px rgba(0,0,0,.2)}
+  .in .bubble{background:var(--wa-in);border-top-left-radius:2px}
+  .out .bubble{background:var(--wa-green);border-top-right-radius:2px}
+  .time{font-size:10px;color:var(--wa-sub);float:right;margin:6px 0 -3px 10px;position:relative;top:3px}
+  .out .time{color:#a7c4bb}
+  .typing .bubble{display:flex;gap:4px;align-items:center;padding:12px 14px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--wa-sub);animation:b 1.2s infinite}
+  .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+  @keyframes b{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+  .quick{display:flex;flex-wrap:wrap;gap:8px;padding:8px 10px 4px;justify-content:flex-end}
+  .qbtn{background:transparent;border:1px solid var(--wa-accent);color:var(--wa-accent);padding:8px 14px;border-radius:18px;font-size:13.5px;cursor:pointer;transition:.15s}
+  .qbtn:active{background:var(--wa-accent);color:#2a0010}
+  .composer{background:var(--wa-header);display:flex;align-items:center;gap:8px;padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom));flex-shrink:0}
+  .composer input{flex:1;background:var(--wa-in);border:none;outline:none;color:var(--wa-text);padding:11px 14px;border-radius:22px;font-size:14.5px}
+  .send{width:44px;height:44px;border-radius:50%;background:var(--wa-accent);border:none;color:#2a0010;font-size:20px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .restart{position:absolute;bottom:74px;left:50%;transform:translateX(-50%);z-index:5;background:rgba(36,16,25,.92);color:var(--wa-sub);border:1px solid #3a2530;font-size:11px;padding:5px 12px;border-radius:14px;cursor:pointer;display:none}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="demo-tag">DEMO</div>
+  <div class="header">
+    <a href="../menu.html" class="back" style="text-decoration:none">‹</a>
+    <div class="avatar">U</div>
+    <div class="h-info">
+      <div class="h-name">Estudio de Uñas Glam</div>
+      <div class="h-status" id="status">en línea</div>
+    </div>
+    <div class="langs" id="langs"></div>
+  </div>
+  <div class="chat" id="chat"></div>
+  <button class="restart" id="restart" onclick="restart()">↺</button>
+  <div class="composer">
+    <input id="input" autocomplete="off">
+    <button class="send" onclick="sendInput()">➤</button>
+  </div>
+</div>
+<script>
+const BIZ="Estudio de Uñas Glam";
+const T={
+ es:{name:"Español",online:"en línea",typing:"escribiendo…",ph:"Escribe un mensaje",
+  greet:`¡Hola! 👋 Soy el asistente de <b>${BIZ}</b>. Disponible 24/7. ¿En qué te ayudo? 💅`,
+  m:["💅 Pedir cita","💖 Semipermanente","💳 Precios","🕐 Horario","📍 Cómo llegar"],
+  askDay:"¡Perfecto! Te reservo cita. 💅\n¿Qué día?",days:["Hoy","Mañana","Sábado"],
+  askH:d=>`¿A qué hora te va bien para ${d.toLowerCase()}?`,
+  askN:"¡Casi listo! ✍️ ¿A nombre de quién?",check:"🔎 Comprobando huecos en la agenda...",
+  conf:r=>`✅ <b>¡Cita reservada!</b>\n\n👤 ${r.nombre}\n📅 ${r.dia}\n🕐 ${r.hora}\n💅 Con Ana\n\n🔔 Te recuerdo 2h antes.\n¡Te esperamos guapa! 💖`,
+  precios:`💳 Precios:\n• Manicura express — desde 18 €\n• Semipermanente — desde 25 €\n• Pedicura — desde 25 €\n• Uñas acrílicas/gel — desde 35 €\nPrimera vez −20% 🎁\n\n¿Te reservo cita?`,
+  horario:`🕐 Horario:\nLun–Sáb 9:00–20:00\nReservas 24/7 por WhatsApp.\n\n¿Te reservo cita?`,
+  ubic:`📍 Estamos en el centro, con parking 🅿️\nFácil acceso.\n\n¿Te reservo cita?`,
+  yesBook:"💅 Pedir cita",no:"No, gracias",
+  fin:"¡Gracias por escribir! Aquí estoy 24/7. 😊",fb:"Te leo 🙂 Puedo ayudarte con:"},
+ ca:{name:"Català",online:"en línia",typing:"escrivint…",ph:"Escriu un missatge",
+  greet:`Hola! 👋 Sóc l'assistent de <b>${BIZ}</b>. Disponible 24/7. En què t'ajudo? 💅`,
+  m:["💅 Demanar cita","💖 Semipermanent","💳 Preus","🕐 Horari","📍 Com arribar"],
+  askDay:"Perfecte! Et reservo cita. 💅\nQuin dia?",days:["Avui","Demà","Dissabte"],
+  askH:d=>`A quina hora et va bé per ${d.toLowerCase()}?`,
+  askN:"Gairebé llest! ✍️ A nom de qui?",check:"🔎 Comprovant disponibilitat...",
+  conf:r=>`✅ <b>Cita reservada!</b>\n\n👤 ${r.nombre}\n📅 ${r.dia}\n🕐 ${r.hora}\n💅 Amb l'Ana\n\n🔔 T'ho recordo 2h abans.\nT'esperem maca! 💖`,
+  precios:`💳 Preus:\n• Manicura exprés — des de 18 €\n• Semipermanent — des de 25 €\n• Pedicura — des de 25 €\n• Ungles acríliques/gel — des de 35 €\nPrimera vegada −20% 🎁\n\nEt reservo cita?`,
+  horario:`🕐 Horari:\nDl–Ds 9:00–20:00\nReserves 24/7 per WhatsApp.\n\nEt reservo cita?`,
+  ubic:`📍 Som al centre, amb pàrquing 🅿️\nFàcil accés.\n\nEt reservo cita?`,
+  yesBook:"💅 Demanar cita",no:"No, gràcies",
+  fin:"Gràcies per escriure! Sóc aquí 24/7. 😊",fb:"Et llegeixo 🙂 Et puc ajudar amb:"},
+ en:{name:"English",online:"online",typing:"typing…",ph:"Type a message",
+  greet:`Hi! 👋 I'm the assistant at <b>${BIZ}</b>. Available 24/7. How can I help? 💅`,
+  m:["💅 Book appointment","💖 Gel polish","💳 Prices","🕐 Hours","📍 How to get here"],
+  askDay:"Great! Let's book your appointment. 💅\nWhich day?",days:["Today","Tomorrow","Saturday"],
+  askH:d=>`What time works for ${d.toLowerCase()}?`,
+  askN:"Almost done! ✍️ Under what name?",check:"🔎 Checking the schedule...",
+  conf:r=>`✅ <b>Appointment booked!</b>\n\n👤 ${r.nombre}\n📅 ${r.dia}\n🕐 ${r.hora}\n💅 With Ana\n\n🔔 I'll remind you 2h before.\nSee you, gorgeous! 💖`,
+  precios:`💳 Prices:\n• Express manicure — from €18\n• Gel polish — from €25\n• Pedicure — from €25\n• Acrylic/gel nails — from €35\nFirst time −20% 🎁\n\nShall I book your appointment?`,
+  horario:`🕐 Hours:\nMon–Sat 9:00–20:00\nBookings 24/7 via WhatsApp.\n\nBook an appointment?`,
+  ubic:`📍 We're in the centre, with parking 🅿️\nEasy access.\n\nBook an appointment?`,
+  yesBook:"💅 Book appointment",no:"No, thanks",
+  fin:"Thanks for writing! I'm here 24/7. 😊",fb:"I'm listening 🙂 I can help with:"},
+ ru:{name:"Русский",online:"в сети",typing:"печатает…",ph:"Сообщение",
+  greet:`Привет! 👋 Я ассистент <b>${BIZ}</b>. На связи 24/7. Чем помочь? 💅`,
+  m:["💅 Записаться","💖 Гель-лак","💳 Цены","🕐 Часы","📍 Как добраться"],
+  askDay:"Отлично! Запишу на приём. 💅\nНа какой день?",days:["Сегодня","Завтра","Суббота"],
+  askH:d=>`На какое время на «${d.toLowerCase()}»?`,
+  askN:"Почти готово! ✍️ На чьё имя?",check:"🔎 Проверяю свободные окна...",
+  conf:r=>`✅ <b>Запись оформлена!</b>\n\n👤 ${r.nombre}\n📅 ${r.dia}\n🕐 ${r.hora}\n💅 Мастер Ана\n\n🔔 Напомню за 2 часа.\nЖдём, красотка! 💖`,
+  precios:`💳 Цены:\n• Маникюр экспресс — от 18 €\n• Гель-лак — от 25 €\n• Педикюр — от 25 €\n• Наращивание (гель/акрил) — от 35 €\nПервый визит −20% 🎁\n\nЗаписать?`,
+  horario:`🕐 Часы работы:\nПн–Сб 9:00–20:00\nЗапись 24/7 в WhatsApp.\n\nЗаписать?`,
+  ubic:`📍 Мы в центре, есть парковка 🅿️\nЛегко добраться.\n\nЗаписать?`,
+  yesBook:"💅 Записаться",no:"Нет, спасибо",
+  fin:"Спасибо за сообщение! Я тут 24/7. 😊",fb:"Слушаю 🙂 Могу помочь с:"}
+};
+const chat=document.getElementById('chat'),input=document.getElementById('input'),statusEl=document.getElementById('status'),restartBtn=document.getElementById('restart'),langsEl=document.getElementById('langs');
+let L='es',state='menu',res={};
+function tr(){return T[L];}
+function now(){const d=new Date();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);}
+function scroll(){chat.scrollTop=chat.scrollHeight;}
+function addOut(t){const r=document.createElement('div');r.className='row out';r.innerHTML=`<div class="bubble">${t}<span class="time">${now()} ✓✓</span></div>`;chat.appendChild(r);scroll();}
+function typing(){statusEl.textContent=tr().typing;const r=document.createElement('div');r.className='row in typing';r.id='typing';r.innerHTML=`<div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;chat.appendChild(r);scroll();}
+function addIn(t,cb){typing();setTimeout(()=>{const x=document.getElementById('typing');if(x)x.remove();statusEl.textContent=tr().online;const r=document.createElement('div');r.className='row in';r.innerHTML=`<div class="bubble">${t}<span class="time">${now()}</span></div>`;chat.appendChild(r);scroll();if(cb)cb();},650+Math.min(t.length*11,1300));}
+function quick(opts){const q=document.createElement('div');q.className='quick';q.id='quick';opts.forEach(o=>{const b=document.createElement('button');b.className='qbtn';b.textContent=o.label;b.onclick=()=>{clearQuick();addOut(o.label);handle(o.value,o.label);};q.appendChild(b);});chat.appendChild(q);scroll();}
+function clearQuick(){const q=document.getElementById('quick');if(q)q.remove();}
+function menuBtns(){const t=tr();return [{label:t.m[0],value:'cita'},{label:t.m[1],value:'semi'},{label:t.m[2],value:'precios'},{label:t.m[3],value:'horario'},{label:t.m[4],value:'ubic'}];}
+function start(){const t=tr();chat.innerHTML='';state='menu';res={};restartBtn.style.display='none';input.placeholder=t.ph;statusEl.textContent=t.online;addIn(t.greet,()=>quick(menuBtns()));}
+function bookFlow(){const t=tr();state='b_dia';quick(t.days.map((d,i)=>({label:d,value:'d'+i})));}
+function handle(v,label){const t=tr();
+  if(v==='cita'||v==='semi'){addIn(t.askDay,bookFlow);}
+  else if(v[0]==='d'&&v.length<=2){res.dia=t.days[+v[1]];state='b_hora';addIn(t.askH(res.dia),()=>quick([{label:'10:00',value:'h1000'},{label:'17:00',value:'h1700'},{label:'19:00',value:'h1900'}]));}
+  else if(v[0]==='h'){res.hora=v.slice(1,3)+':'+v.slice(3);state='b_nombre';addIn(t.askN);}
+  else if(v==='precios'){addIn(t.precios,()=>quick([{label:t.yesBook,value:'cita'},{label:t.no,value:'fin'}]));}
+  else if(v==='horario'){addIn(t.horario,()=>quick([{label:t.yesBook,value:'cita'},{label:t.no,value:'fin'}]));}
+  else if(v==='ubic'){addIn(t.ubic,()=>quick([{label:t.yesBook,value:'cita'},{label:t.no,value:'fin'}]));}
+  else if(v==='fin'){addIn(t.fin,()=>{restartBtn.style.display='block';});}
+}
+function confirmBook(){const t=tr();addIn(t.check,()=>addIn(t.conf(res),()=>{restartBtn.style.display='block';}));}
+function sendInput(){const t=tr();const v=input.value.trim();if(!v)return;input.value='';clearQuick();addOut(v);
+  if(state==='b_nombre'){res.nombre=v;state='done';return confirmBook();}
+  const lo=v.toLowerCase();
+  if(/cita|appoint|записа|reserv|book|hora|manicur|маникюр|uña|gel|semi/.test(lo))return handle('cita');
+  if(/precio|preu|price|цен|cuanto|quant/.test(lo))return handle('precios');
+  if(/horar|hour|часы|abre|obert|open/.test(lo))return handle('horario');
+  if(/lleg|arrib|where|адрес|donde|on s|parking|direccion/.test(lo))return handle('ubic');
+  addIn(t.fb,()=>quick(menuBtns()));}
+input.addEventListener('keydown',e=>{if(e.key==='Enter')sendInput();});
+function setLang(l){L=l;[...langsEl.children].forEach(c=>c.classList.toggle('active',c.dataset.l===l));document.documentElement.lang=l;start();}
+Object.keys(T).forEach(l=>{const b=document.createElement('span');b.className='lang'+(l==='es'?' active':'');b.dataset.l=l;b.textContent=l.toUpperCase();b.onclick=()=>setLang(l);langsEl.appendChild(b);});
+function restart(){location.hash='';start();}
+function autoplay(){const steps=[
+  ()=>{clearQuick();addOut(tr().m[0]);handle('cita');},
+  ()=>{clearQuick();addOut(tr().days[1]);handle('d1',tr().days[1]);},
+  ()=>{clearQuick();addOut('17:00');handle('h1700','17:00');},
+  ()=>{addOut('Marta');res.nombre='Marta';state='done';confirmBook();}];
+  let i=0;const t=setInterval(()=>{if(i>=steps.length){clearInterval(t);return;}steps[i++]();},2600);}
+start();
+if(location.hash==='#play')setTimeout(autoplay,1500);
+</script>
+</body>
+</html>
